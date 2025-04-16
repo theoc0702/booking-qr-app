@@ -1,50 +1,92 @@
-# Welcome to your Expo app 👋
+# Déploiement d'une application React sur Android
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Ce guide explique comment transformer une application React en application Android installable (.apk), en passant par la génération d'un fichier AAB (Android App Bundle).
 
-## Get started
+## Prérequis
 
-1. Install dependencies
+- Node.js et npm installés
+- Une application React fonctionnelle
+- Compte Expo (gratuit)
 
-   ```bash
-   npm install
-   ```
+## Étape 1 : Transformer votre application React en application mobile
 
-2. Start the app
-
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+1. Installez les outils Expo CLI :
 ```bash
-npm run reset-project
+npm install -g eas-cli
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Connectez-vous à votre compte Expo :
+```bash
+npx eas login
+```
 
-## Learn more
+3. Dans votre projet React, initialisez la configuration EAS :
+```bash
+npx eas build:configure
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Configurez votre projet pour un build Android en créant ou modifiant le fichier `eas.json` :
+```json
+{
+  "build": {
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      }
+    }
+  }
+}
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+5. Lancez la commande pour générer le fichier AAB :
+```bash
+npx eas build -p android
+```
 
-## Join the community
+6. Suivez les instructions à l'écran. À la fin du processus, Expo vous fournira un lien pour télécharger votre fichier AAB.
 
-Join our community of developers creating universal apps.
+## Étape 2 : Convertir le fichier AAB en APK
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Le fichier AAB (Android App Bundle) est le format officiel pour le Google Play Store, mais pour installer directement l'application sur un appareil, vous avez besoin d'un fichier APK.
+
+### Option 1 : Utiliser une application mobile de conversion
+
+Il existe plusieurs applications Android qui peuvent convertir directement un fichier AAB en APK sur votre téléphone :
+
+1. Téléchargez une application de conversion AAB vers APK depuis le Play Store
+2. Ouvrez l'application et sélectionnez votre fichier AAB
+3. Lancez la conversion
+4. Téléchargez le fichier APK généré
+
+### Option 2 : Utiliser Bundletool en ligne de commande
+
+Si vous préférez utiliser votre ordinateur :
+
+1. Téléchargez [Bundletool](https://github.com/google/bundletool/releases)
+2. Exécutez la commande suivante :
+```bash
+java -jar bundletool.jar build-apks --bundle=votre_app.aab --output=votre_app.apks --mode=universal
+```
+3. Extrayez l'APK :
+```bash
+java -jar bundletool.jar extract-apks --apks=votre_app.apks --output-dir=./apk-output
+```
+
+## Étape 3 : Distribuer votre APK
+
+1. Hébergez le fichier APK sur un service comme Google Drive, Dropbox ou votre propre serveur
+2. Créez un QR code pointant vers le lien de téléchargement
+3. Partagez ce QR code avec vos utilisateurs
+
+## Remarques importantes
+
+- Les utilisateurs devront activer "Installation d'applications de sources inconnues" dans les paramètres de leur appareil Android
+- Cette méthode convient pour les tests et la distribution limitée
+- Pour une distribution à grande échelle, envisagez de publier sur le Google Play Store (frais unique de 25$)
+
+## Dépannage
+
+Si vous rencontrez des erreurs lors du build :
+- Vérifiez que votre application React est compatible avec React Native
+- Assurez-vous d'avoir les dernières versions des outils Expo
+- Consultez les logs d'erreur pour identifier les problèmes spécifiques
